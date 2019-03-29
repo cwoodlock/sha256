@@ -17,6 +17,9 @@ int main(int argc,char *argv[]){
 
   //Store number of bytes read
   uint64_t nobytes;
+
+  //Keep track and append onto the end of the message block
+  uint64_t nobits = 0;
   
   //File pointer
   FILE* f;
@@ -29,12 +32,38 @@ int main(int argc,char *argv[]){
     
     //Read 64 bytes from file f and store in M.e
     nobytes =  fread(M.e, 1, 64, f);
-    //prints the number of bytes that have been read, llu stands for long long unsigned
-    printf("%llu\n", nobytes);
+    
+    //Anytime we read any number of bytes from the file add that nmber of bytes in bits onto nobits
+    nobits = nobits + (nobytes * 8);
+  
+    //If there is room in this mesaage bliock to do all the padding do this
+    if(nobytes < 56) {
+      printf("I've found a block with less than 55 bytes.\n");
+
+      //add padding to the end which is 10000000
+      M.e[nobytes] = 0x80;
+
+      while(nobytes < 56) {
+        //Add 1 onto nobytes as this will be the index into the block
+        nobytes = nobytes + 1;
+
+        //Set all of those bytes to 0 as you want to zero out everything in the 
+        //block between the end of the message with the 1 at the end of it up the last 8 bytes which
+        //have the 64 bits which have the integer that we need to append onto the end of
+        M.e[nobytes] = 0x00;
+      }
+      //Set the last element to nobits
+      M.s[7] = nobits;
+    }
 
   }
 
   fclose(f);
+
+  for(int i = 0; i < 64; i++){
+    printf("%x ", M.e[i]);
+  }
+  printf("\n");
 
   return 0;
 }
