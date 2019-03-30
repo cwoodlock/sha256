@@ -9,6 +9,7 @@
 //Used for error handling in file operations
 #include <errno.h>
 #include <string.h>
+
 //unions store in the same memory address so in this instance we
 //can access it as 64 8bit values or 16 32bit values
 //or 8 64bit values this represents the message block
@@ -45,6 +46,9 @@ void sha256(FILE *msgf);
 //Retrieve the next message block
 int nextmsgblock(FILE *msgf, union msgblock *M, enum status *S, uint64_t *nobits);
 
+//Change from little to big endian
+uint64_t changeEndian(uint64_t x);
+
 //Main method starts here
 int main(int argc, char *argv[]){
 
@@ -58,14 +62,19 @@ int main(int argc, char *argv[]){
   msgf = fopen(argv[1], "r");
  
   //If the file pointer is null do this
+  //Adapted from: https://www.youtube.com/watch?v=rMfp6gKR_kk
   if(msgf == NULL){
+
     //Whatever the rror number is will be assigned to errnum
     errnum = errno;
+
     //Print the error number value 
     fprintf(stderr, "Value of errno: %d\n", errno);
+
     //Perror will first show the message that the user has printed and after that will then 
     //show the internal error message will be then shown
     perror("Error printed by perror");
+
     ///This will print the string version of the error
     fprintf(stderr, "Error opening file: %s\n", strerror(errnum));
 
@@ -250,7 +259,7 @@ int nextmsgblock(FILE *msgf, union msgblock *M, enum status *S, uint64_t *nobits
       M->e[i] = 0x00;
     }
     //Set the las 64 bits to the number of bits in the file ***Should be big endian***
-    M->s[7] = *nobits;
+    M->s[7] = changeEndian(*nobits);
 
     //Tell S we are finished
     *S = FINISH;
@@ -264,7 +273,6 @@ int nextmsgblock(FILE *msgf, union msgblock *M, enum status *S, uint64_t *nobits
  }
 
   //If we get down here, we haven't finished reading the file S ==READ
-
                                     
   //Read 64 bytes from file f and store in message block M.e
   nobytes =  fread(M->e, 1, 64, msgf);
@@ -290,7 +298,7 @@ int nextmsgblock(FILE *msgf, union msgblock *M, enum status *S, uint64_t *nobits
     }
 
     //Set the last element to nobitsginal message ***Make sure it is a big endian int***
-    M->s[7] = *nobits;
+    M->s[7] = changeEndian(*nobits);
 
     //Set S to Finish to exit loop
     *S = FINISH;
@@ -316,6 +324,37 @@ int nextmsgblock(FILE *msgf, union msgblock *M, enum status *S, uint64_t *nobits
       
     //If we get this far, then return 1 so that this function is called again
     return 1;
+
+}
+
+//Adapted from https://www.coders-hub.com/2013/04/convert-little-endian-to-big-endian-in-c.html
+//Adapted from http://www.mit.edu/afs.new/sipb/project/merakidev/include/bits/byteswap.h
+uint64_t changeEndian(uint64_t x)
+{
+  uint64_t byte0, byte1, byte2, byte3, byte4, byte5, byte6, byte7;
+  byte0 = (x & 0xff00000000000000);
+  byte1 = (x & 0x00ff000000000000);
+  byte2 = (x & 0x0000ff0000000000);
+  byte3 = (x & 0x000000ff00000000);
+  byte4 = (x & 0x00000000ff000000);
+  byte5 = (x & 0x0000000000ff0000);
+  byte6 = (x & 0x000000000000ff00);
+  byte7 = (x & 0x00000000000000ff);
+
+  return((byte0 >> 56) | (byte1 >> 40) | (byte2 >> 24) | (byte3 >> 8) 
+                  | (byte0 << 8) | (byte1 << 24) | (byte2 << 40) | (byte3 << 56));
+
+  //uint32_t b0,b1,b2,b3;
+  //uint32_t res;
+
+  //b0 = (x & 0x000000ff) << 24u;
+  //b1 = (x & 0x0000ff00) << 8u;
+  //b2 = (x & 0x00ff0000) >> 8u;
+  //b3 = (x & 0xff000000) >> 24u;
+
+  //res = b0 | b1 | b2 | b3;
+
+  //return res;
 
 }
 
