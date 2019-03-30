@@ -262,7 +262,7 @@ int nextmsgblock(FILE *msgf, union msgblock *M, enum status *S, uint64_t *nobits
       M->e[i] = 0x00;
     }
     //Set the las 64 bits to the number of bits in the file ***Should be big endian***
-    M->s[7] = changeEndian64(*nobits);
+    M->s[7] = changeEndian32(*nobits);
 
     //Tell S we are finished
     *S = FINISH;
@@ -301,7 +301,7 @@ int nextmsgblock(FILE *msgf, union msgblock *M, enum status *S, uint64_t *nobits
     }
 
     //Set the last element to nobitsginal message ***Make sure it is a big endian int***
-    M->s[7] = changeEndian64(*nobits);
+    M->s[7] = changeEndian32(*nobits);
 
     //Set S to Finish to exit loop
     *S = FINISH;
