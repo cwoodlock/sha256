@@ -32,7 +32,7 @@ Assuming the file compiles with no errors you can now run the file. To run the f
 To make sure I was getting the correct value as a result from my algorithm I first went to two websites that offered SHA 256 hashing. Below was the result from each website when I hashed the padfile.c file. I chose this file as I would not be changing it so the tests could be consistent.
 
 ![Website 1](https://raw.githubusercontent.com/cwoodlock/sha256/master/Images/emnWebsite.png)
-
+----------------------------------------------------------------------------------------------------
 ![Website 2](https://raw.githubusercontent.com/cwoodlock/sha256/master/Images/md5fileWebsite.png)
 
 As you can see both website returned the same hash value for the padfile.c.
