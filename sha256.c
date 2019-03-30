@@ -46,8 +46,11 @@ void sha256(FILE *msgf);
 //Retrieve the next message block
 int nextmsgblock(FILE *msgf, union msgblock *M, enum status *S, uint64_t *nobits);
 
-//Change from little to big endian
-uint64_t changeEndian(uint64_t x);
+//Change from little to big endian 64
+uint64_t changeEndian64(uint64_t x);
+
+//Change from little to big endian 32
+uint32_t changeEndian32(uint32_t x);
 
 //Main method starts here
 int main(int argc, char *argv[]){
@@ -84,7 +87,7 @@ int main(int argc, char *argv[]){
     sha256(msgf);
 
     //Would be better if print statement was in here*** pass array H back 44min last video
-  
+    
     //Close the file
     fclose(msgf);
   }
@@ -191,7 +194,7 @@ void sha256(FILE *msgf){
 
   }
 
-    printf("%08x %08x %08x %08x %08x %08x %08x %08x\n", H[0], H[1], H[2], H[3], H[4], H[5], H[6], H[7]);
+  printf("%08x %08x %08x %08x %08x %08x %08x %08x\n", H[0], H[1], H[2], H[3], H[4], H[5], H[6], H[7]);
 
 }
 
@@ -259,7 +262,7 @@ int nextmsgblock(FILE *msgf, union msgblock *M, enum status *S, uint64_t *nobits
       M->e[i] = 0x00;
     }
     //Set the las 64 bits to the number of bits in the file ***Should be big endian***
-    M->s[7] = changeEndian(*nobits);
+    M->s[7] = changeEndian64(*nobits);
 
     //Tell S we are finished
     *S = FINISH;
@@ -298,7 +301,7 @@ int nextmsgblock(FILE *msgf, union msgblock *M, enum status *S, uint64_t *nobits
     }
 
     //Set the last element to nobitsginal message ***Make sure it is a big endian int***
-    M->s[7] = changeEndian(*nobits);
+    M->s[7] = changeEndian64(*nobits);
 
     //Set S to Finish to exit loop
     *S = FINISH;
@@ -316,7 +319,7 @@ int nextmsgblock(FILE *msgf, union msgblock *M, enum status *S, uint64_t *nobits
         nobytes = nobytes + 1;
         M->e[nobytes] = 0x00;
       }
-                                                                                                                            //If finished reading the file and it happens to be 512bits or exactly the end of the file
+      //If finished reading the file and it happens to be 512bits or exactly the end of the file
     } else if (feof(msgf)){ 
         //Tell S that we need another message block with all the padding
         *S = PAD1;                                                                                                  
@@ -329,32 +332,22 @@ int nextmsgblock(FILE *msgf, union msgblock *M, enum status *S, uint64_t *nobits
 
 //Adapted from https://www.coders-hub.com/2013/04/convert-little-endian-to-big-endian-in-c.html
 //Adapted from http://www.mit.edu/afs.new/sipb/project/merakidev/include/bits/byteswap.h
-uint64_t changeEndian(uint64_t x)
+//Adapted from https://stackoverflow.com/questions/19275955/convert-little-endian-to-big-endian
+//Adapted from https://stackoverflow.com/questions/2182002/convert-big-endian-to-little-endian-in-c-without-using-provided-func
+//These will be used to swap from little endian to big endian
+uint64_t changeEndian64(uint64_t x)
 {
-  uint64_t byte0, byte1, byte2, byte3, byte4, byte5, byte6, byte7;
-  byte0 = (x & 0xff00000000000000);
-  byte1 = (x & 0x00ff000000000000);
-  byte2 = (x & 0x0000ff0000000000);
-  byte3 = (x & 0x000000ff00000000);
-  byte4 = (x & 0x00000000ff000000);
-  byte5 = (x & 0x0000000000ff0000);
-  byte6 = (x & 0x000000000000ff00);
-  byte7 = (x & 0x00000000000000ff);
-
-  return((byte0 >> 56) | (byte1 >> 40) | (byte2 >> 24) | (byte3 >> 8) 
-                  | (byte0 << 8) | (byte1 << 24) | (byte2 << 40) | (byte3 << 56));
-
-  //uint32_t b0,b1,b2,b3;
-  //uint32_t res;
-
-  //b0 = (x & 0x000000ff) << 24u;
-  //b1 = (x & 0x0000ff00) << 8u;
-  //b2 = (x & 0x00ff0000) >> 8u;
-  //b3 = (x & 0xff000000) >> 24u;
-
-  //res = b0 | b1 | b2 | b3;
-
-  //return res;
+  x = (x & 0xffffffff00000000) >> 32 | (x & 0x00000000ffffffff) << 32;
+  x = (x & 0xffff0000ffff0000) >> 16 | (x & 0x0000ffff0000ffff) << 16;
+  x = (x & 0xff00ff00ff00ff00) >>  8 | (x & 0x00ff00ff00ff00ff) <<  8;
+  return x;
 
 }
+
+uint32_t changeEndian32(uint32_t x){
+  x = (x & 0xffff0000) >> 16 | (x & 0x0000ffff) << 16;
+  x = (x & 0xff00ff00) >>  8 | (x & 0x00ff00ff) <<  8;
+  return x;
+}
+
 
