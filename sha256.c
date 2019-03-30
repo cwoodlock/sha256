@@ -6,7 +6,9 @@
 #include <stdio.h>
 // For using fixed bit length integers
 #include <stdint.h>
-
+//Used for error handling in file operations
+#include <errno.h>
+#include <string.h>
 //unions store in the same memory address so in this instance we
 //can access it as 64 8bit values or 16 32bit values
 //or 8 64bit values this represents the message block
@@ -49,16 +51,34 @@ int main(int argc, char *argv[]){
   //File pointer ***Error checking on opening file***
   FILE* msgf;
 
+  //Decalre errnum
+  int errnum;
+
   //Open file pointer
   msgf = fopen(argv[1], "r");
-  
-  //Run the secure hash algorithm on the filme
-  sha256(msgf);
+ 
+  //If the file pointer is null do this
+  if(msgf == NULL){
+    //Whatever the rror number is will be assigned to errnum
+    errnum = errno;
+    //Print the error number value 
+    fprintf(stderr, "Value of errno: %d\n", errno);
+    //Perror will first show the message that the user has printed and after that will then 
+    //show the internal error message will be then shown
+    perror("Error printed by perror");
+    ///This will print the string version of the error
+    fprintf(stderr, "Error opening file: %s\n", strerror(errnum));
 
-  //Would be better if print statement was in here*** pass array H back 44min last video
+  } else {
+
+    //Run the secure hash algorithm on the filme
+    sha256(msgf);
+
+    //Would be better if print statement was in here*** pass array H back 44min last video
   
-  //Close the file
-  fclose(msgf);
+    //Close the file
+    fclose(msgf);
+  }
 
   return 0;
 }
