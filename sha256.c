@@ -1,6 +1,6 @@
 //Colm Woodlock G00341460
 //Secure Hash Algorithm 256 bit version
-//***once we calculate hash what do we do with it, return it to main and print it?***
+
 
 //The usual input/output header file
 #include <stdio.h>
@@ -41,7 +41,7 @@ uint32_t Ch(uint32_t x,uint32_t y,uint32_t z);
 uint32_t Maj(uint32_t x,uint32_t y,uint32_t z);
 
 //Calculate the hash of a file
-void sha256(FILE *msgf);
+void sha256(FILE *msgf, uint32_t *H);
 
 //Retrieve the next message block
 int nextmsgblock(FILE *msgf, union msgblock *M, enum status *S, uint64_t *nobits);
@@ -55,7 +55,7 @@ uint32_t changeEndian32(uint32_t x);
 //Main method starts here
 int main(int argc, char *argv[]){
 
-  //File pointer ***Error checking on opening file***
+  //File pointer
   FILE* msgf;
 
   //Decalre errnum
@@ -83,11 +83,23 @@ int main(int argc, char *argv[]){
 
   } else {
 
+    //The hash value (Section 6.2)
+    //The values come from Section 5.3.3
+    uint32_t H[8] = {
+      0x6a09e667,
+      0xbb67ae85,
+      0x3c6ef372,
+      0xa54ff53a,
+      0x510e527f,
+      0x9b05688c,
+      0x1f83d9ab,
+      0x5be0cd19
+    };
     //Run the secure hash algorithm on the filme
-    sha256(msgf);
+    sha256(msgf, H);
 
-    //Would be better if print statement was in here*** pass array H back 44min last video
-    
+    //Printing in main adapted from here: https://codeforwin.org/2017/12/pass-return-array-function-c.html 
+    printf("%08x %08x %08x %08x %08x %08x %08x %08x\n", H[0], H[1], H[2], H[3], H[4], H[5], H[6], H[7]);
     //Close the file
     fclose(msgf);
   }
@@ -96,7 +108,7 @@ int main(int argc, char *argv[]){
 }
 
 //Function to call sha256 algorithm
-void sha256(FILE *msgf){
+void sha256(FILE *msgf, uint32_t *H){
 
   //Create an instance of message block
   union msgblock M;
@@ -135,18 +147,6 @@ void sha256(FILE *msgf){
   uint32_t T1, T2;
 
 
-  //The hash value (Section 6.2)
-  //The values come from Section 5.3.3
-  uint32_t H[8] = {
-    0x6a09e667,
-    0xbb67ae85,
-    0x3c6ef372,
-    0xa54ff53a,
-    0x510e527f,
-    0x9b05688c,
-    0x1f83d9ab,
-    0x5be0cd19
-  };
 
   //For looping
   int i, t; 
@@ -194,7 +194,7 @@ void sha256(FILE *msgf){
 
   }
 
-  printf("%08x %08x %08x %08x %08x %08x %08x %08x\n", H[0], H[1], H[2], H[3], H[4], H[5], H[6], H[7]);
+  //printf("%08x %08x %08x %08x %08x %08x %08x %08x\n", H[0], H[1], H[2], H[3], H[4], H[5], H[6], H[7]);
 
 }
 
