@@ -42,22 +42,27 @@ As of writing this README I have not matched my output to the expected output, t
 
 ### Test 1
 In this test I used the changeEndian64 function and as you can see the output does not match the expected output.
-![Test 1](https://raw.githubusercontent.com/cwoodlock/sha256/master/Images/functions.png)
+
+![Test 1](https://raw.githubusercontent.com/cwoodlock/sha256/master/Images/First%20test%2064.png)
 
 ### Test 2
 In this test I used the changeEndian32 function and as you can see the output does not match the expected output.
-![Test 2](https://raw.githubusercontent.com/cwoodlock/sha256/master/Images/functions.png)
+
+![Test 2](https://raw.githubusercontent.com/cwoodlock/sha256/master/Images/Second%20test%2032.png)
 
 ### Test 3
 In this test I used the changeEndian32 function and used the changeEndian32 function on the H array as you can see the output does not match the expected output.
-![Test 3](https://raw.githubusercontent.com/cwoodlock/sha256/master/Images/functions.png)
+
+![Test 3](https://raw.githubusercontent.com/cwoodlock/sha256/master/Images/Third%20test%2032%20and%20H%20values.png)
 
 ### Test 4
 In this test I used the changeEndian64 function and used the changeEndian64 function on the H array as you can see the output does not match the expected output.
-![Test 4](https://raw.githubusercontent.com/cwoodlock/sha256/master/Images/functions.png)
+
+![Test 4](https://raw.githubusercontent.com/cwoodlock/sha256/master/Images/Fourth%20test%20and%2064%20H%20values.png)
 
 ### Test 5
 In this test I will test the error handling when the algorithm is called on a file that does not exist. As you can see below it displays the error.
+
 ![Test 5](https://raw.githubusercontent.com/cwoodlock/sha256/master/Images/Error%20handling.png)
 
 ## Resources
